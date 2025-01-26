@@ -40,8 +40,6 @@ func AuthorizeApp(conn *websocket.Conn, h *middlewares.Hub) {
 	}
 	protoMessage, _ := proto.Marshal(message)
 
-	fmt.Println("BYTEMESSAGE:", protoMessage)
-
 	// Serialize the message to a byte slice
 	writeerror := conn.WriteMessage(MessageType, protoMessage)
 
@@ -50,7 +48,6 @@ func AuthorizeApp(conn *websocket.Conn, h *middlewares.Hub) {
 	}
 
 	go func() {
-
 		appauthres := <-h.AppAuthResChannnel
 		//Means app is  authorized,we can now authorize the Trading account
 		if *appauthres.PayloadType == 2101 {
@@ -101,22 +98,6 @@ func AuthorizeAccount(conn *websocket.Conn, h *middlewares.Hub) {
 			log.Fatal(err)
 		}
 		if *accounthAuthRes.PayloadType == uint32(messages.ProtoOAPayloadType_PROTO_OA_ACCOUNT_AUTH_RES) {
-			// accounthAuth := AccountAuth{}
-
-			// swingassests := persistence.GetAllSwingAssets()
-			// lightsymbols := persistence.GetAllSwingLightSymmbol()
-
-			// if len(swingassests) == 0 && len(lightsymbols) == 0 {
-			// 	assetlistinitializer := &AssetListInitializer{}
-			// 	//
-			// 	accounthAuth.SetNext(assetlistinitializer)
-			// 	assetlistinitializer.Execute(conn, h)
-			// } else {
-
-			// 	traderinfo := &TraderInfo{}
-			// 	accounthAuth.SetNext(traderinfo)
-			// 	traderinfo.Execute(conn, h)
-			// }
 
 		}
 
@@ -376,18 +357,11 @@ func GetSymbols(conn *websocket.Conn, h *middlewares.Hub) {
 
 				symbolmodel.ConversionSymbols = append(symbolmodels[index].ConversionSymbols, symbolmodel)
 				MySlice = append(MySlice, symbolmodel)
-				fmt.Println("APPENDEDDOWN:", len(symbolmodel.ConversionSymbols))
 
 			}
 
 		}
-		fmt.Println("SIZECON:", len(symbolmodels[0].ConversionSymbols))
-		fmt.Println("MYSLICE:", len(MySlice))
 		h.SymbolModelChannel <- symbolmodels
-		// symbol := Symbol{}
-		// spotsubscriber := &SpotSubscriber{}
-		// symbol.SetNext(spotsubscriber)
-		// spotsubscriber.Execute(conn, h)
 	}()
 }
 
