@@ -9,11 +9,6 @@ import (
 
 func main() {
 
-	//dsn := os.Getenv("DATABASE_URL")
-
-	// dsn := "postgres://carlos:vUUYROlx74jmAdnvVunkNqiNdxAvZI32@dpg-cg9il4pmbg54mbfbrte0-a.oregon-postgres.render.com/swings"
-	// persistence.Connect(dsn)
-	//persistence.Migrate()
 	router := initServer()
 	router.Run(":" + "8070")
 
