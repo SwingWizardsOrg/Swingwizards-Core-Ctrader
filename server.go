@@ -1,6 +1,7 @@
 package main
 
 import (
+	"ctraderapi/config"
 	"ctraderapi/messagehandler"
 	"ctraderapi/middlewares"
 
@@ -8,20 +9,23 @@ import (
 )
 
 func main() {
-
-	router := initServer()
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		panic(err)
+	}
+	router := initServer(cfg)
 	router.Run(":" + "8070")
 
 }
 
-func initServer() *gin.Engine {
+func initServer(cfg *config.Config) *gin.Engine {
 	hub := middlewares.NewHub()
 	go hub.Run()
 	router := gin.Default()
 
 	//[Websocket] Echo Endpoint ------
 	router.GET("/ws", func(c *gin.Context) {
-		messagehandler.ConnectToOpen("live.ctraderapi.com", 5035, hub, c.Writer, c.Request)
+		messagehandler.ConnectToOpen(cfg.Server.Endpoint, cfg.Server.Port, hub, c.Writer, c.Request)
 	})
 	return router
 }

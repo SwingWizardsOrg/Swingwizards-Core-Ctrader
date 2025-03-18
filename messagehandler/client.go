@@ -48,7 +48,6 @@ func writePump(c *middlewares.Client) {
 	defer func() {
 		c.Hub.Unregister <- c
 		ticker.Stop()
-		//c.Appconn.Close()
 	}()
 
 	for {
@@ -85,11 +84,10 @@ func writePump(c *middlewares.Client) {
 
 }
 
-func ConnectToOpen(host string, port int, hub *middlewares.Hub, w http.ResponseWriter, r *http.Request) {
+func ConnectToOpen(host string, port int32, hub *middlewares.Hub, w http.ResponseWriter, r *http.Request) {
 
 	Appconn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Println(err)
 		return
 	}
 
@@ -99,7 +97,6 @@ func ConnectToOpen(host string, port int, hub *middlewares.Hub, w http.ResponseW
 
 	// Connect to the  Ctrader WebSocket endpoint
 	url := fmt.Sprintf("wss://%s:%d", host, port)
-	fmt.Println(url)
 	conn, _, err := dialer.Dial(url, nil)
 	if err != nil {
 		log.Fatal(err)
