@@ -1,0 +1,11 @@
+#Trading Account
+account:
+  client_id: "client id"
+  client_secret: "client secret"
+  account_id: "account_id"
+  access_token: "access_token"
+
+#Ctrader server
+server: 
+  endpoint: "live.ctraderapi.com"
+  port: 5035
