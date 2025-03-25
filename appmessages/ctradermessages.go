@@ -11,166 +11,198 @@ import (
 )
 
 // Will Send an Account Auth Request to Ctrader.
-func SendPositionsRequest(conn *websocket.Conn) {
+func SendPositionsRequest(conn *websocket.Conn) error {
 	var tt = uint32(messages.ProtoOAPayloadType_PROTO_OA_RECONCILE_REQ)
 	id := int64(25675710)
 	nmess := "443"
-	positionsrequest := &messages.ProtoOAReconcileReq{
+
+	msgReq := &messages.ProtoOAReconcileReq{
 		CtidTraderAccountId: &id,
 	}
-	acBytes, peer := proto.Marshal(positionsrequest)
-	if peer != nil {
-		fmt.Println(peer)
+
+	msgB, err := proto.Marshal(msgReq)
+	if err != nil {
+		return err
 	}
 
-	nessage := &messages.ProtoMessage{
+	msgP := &messages.ProtoMessage{
 		PayloadType: &tt,
-		Payload:     acBytes,
+		Payload:     msgB,
 		ClientMsgId: &nmess,
 	}
-	ttooo, _ := proto.Marshal(nessage)
-	verr := conn.WriteMessage(2, ttooo)
-	if verr != nil {
-		fmt.Println("verr:", verr)
+
+	msgB, err = proto.Marshal(msgP)
+	if err != nil {
+		return err
 	}
 
+	err = conn.WriteMessage(2, msgB)
+	if err != nil {
+		return fmt.Errorf("Failed to send positions request %v", err.Error())
+	}
+	return nil
 }
 
 // Request Symbol Information By Id on the Ctrader Platform
-func SendSymbolRequest(conn *websocket.Conn) {
+func SendSymbolRequest(conn *websocket.Conn) error {
 	var payloadtype = uint32(messages.ProtoOAPayloadType_PROTO_OA_SYMBOL_BY_ID_REQ)
 	id := int64(25675710)
 	ids := []int64{1, 2}
 	nmess := "Symbol_request"
 
-	symbolsRequest := &messages.ProtoOASymbolByIdReq{
+	msgReq := &messages.ProtoOASymbolByIdReq{
 		CtidTraderAccountId: &id,
 		SymbolId:            ids,
 	}
-	symbolBytes, peer := proto.Marshal(symbolsRequest)
-	if peer != nil {
-		fmt.Println(peer)
+
+	msgB, err := proto.Marshal(msgReq)
+	if err != nil {
+		return err
 	}
 
-	nessage := &messages.ProtoMessage{
+	msgP := &messages.ProtoMessage{
 		PayloadType: &payloadtype,
-		Payload:     symbolBytes,
+		Payload:     msgB,
 		ClientMsgId: &nmess,
 	}
-	ttooo, _ := proto.Marshal(nessage)
-	verr := conn.WriteMessage(2, ttooo)
-	if verr != nil {
-		fmt.Println("verr:", verr)
+
+	msgB, err = proto.Marshal(msgP)
+	if err != nil {
+		return err
 	}
 
+	err = conn.WriteMessage(2, msgB)
+	if err != nil {
+		return fmt.Errorf("Failed to send symbol request %v", err)
+	}
+	
+	return nil
 }
 
-func SendSubscribeSpotsRequest(conn *websocket.Conn) {
+func SendSubscribeSpotsRequest(conn *websocket.Conn) error {
 	var payloadtype = uint32(messages.ProtoOAPayloadType_PROTO_OA_SUBSCRIBE_SPOTS_REQ)
 	id := int64(25675710)
 	ids := []int64{1, 2}
 	nmess := "Subscribe_request"
 
-	symbolsRequest := &messages.ProtoOASubscribeSpotsReq{
+	msgReq := &messages.ProtoOASubscribeSpotsReq{
 		CtidTraderAccountId: &id,
 		SymbolId:            ids,
 	}
-	symbolBytes, peer := proto.Marshal(symbolsRequest)
-	if peer != nil {
-		fmt.Println(peer)
+	msgB, err := proto.Marshal(msgReq)
+	if err != nil {
+		return err
 	}
 
-	nessage := &messages.ProtoMessage{
+	msgP := &messages.ProtoMessage{
 		PayloadType: &payloadtype,
-		Payload:     symbolBytes,
+		Payload:     msgB,
 		ClientMsgId: &nmess,
 	}
-	ttooo, _ := proto.Marshal(nessage)
-	verr := conn.WriteMessage(2, ttooo)
-	if verr != nil {
-		fmt.Println("verr:", verr)
+	msgB, err = proto.Marshal(msgP)
+	if err != nil {
+		return err
 	}
+	err = conn.WriteMessage(2, msgB)
+	if err != nil {
+		return fmt.Errorf("Failed to subscribe to spots %v", err)
+	}
+	return nil
 }
 
-func SendProtoOAsymbolConversion(conn *websocket.Conn) {
+func SendProtoOAsymbolConversion(conn *websocket.Conn) error {
 	var payloadtype = uint32(messages.ProtoOAPayloadType_PROTO_OA_SYMBOLS_FOR_CONVERSION_REQ)
 	nmess := "Subscribe_request"
 	id := int64(25675710)
 	firstasset := int64(6)
 	lastasset := int64(4)
 
-	conversionreq := &messages.ProtoOASymbolsForConversionReq{
+	msgReq := &messages.ProtoOASymbolsForConversionReq{
 		CtidTraderAccountId: &id,
 		FirstAssetId:        &firstasset,
 		LastAssetId:         &lastasset,
 	}
-	convBytes, peer := proto.Marshal(conversionreq)
-	if peer != nil {
-		fmt.Println(peer)
+	msgB, err := proto.Marshal(msgReq)
+	if err != nil {
+		return err
 	}
-	nessage := &messages.ProtoMessage{
+	msgP := &messages.ProtoMessage{
 		PayloadType: &payloadtype,
-		Payload:     convBytes,
+		Payload:     msgB,
 		ClientMsgId: &nmess,
 	}
-	ttooo, _ := proto.Marshal(nessage)
-	verr := conn.WriteMessage(2, ttooo)
-	if verr != nil {
-		fmt.Println("verr:", verr)
+	msgB, err = proto.Marshal(msgP)
+	if err != nil {
+		return err
 	}
-
+	err = conn.WriteMessage(2, msgB)
+	if err != nil {
+		return fmt.Errorf("Failed to send symbol conversation request for %v ")
+	}
+	return nil
 }
 
-func SendProtoAssetListReq(conn *websocket.Conn) {
-	//PROTO_OA_ASSET_LIST_REQ
+func SendProtoAssetListReq(conn *websocket.Conn) error {
 	var payloadtype = uint32(messages.ProtoOAPayloadType_PROTO_OA_ASSET_LIST_REQ)
 	fmt.Println(payloadtype)
 	id := int64(25675710)
 	nmess := "asset_req"
-	assetReq := &messages.ProtoOAAssetListReq{
+
+	msgReq := &messages.ProtoOAAssetListReq{
 		CtidTraderAccountId: &id,
 	}
-	assetBytes, peer := proto.Marshal(assetReq)
-	if peer != nil {
-		fmt.Println(peer)
+
+	msgB, err := proto.Marshal(msgReq)
+	if err != nil {
+		return err
 	}
 
-	nessage := &messages.ProtoMessage{
+	msgP := &messages.ProtoMessage{
 		PayloadType: &payloadtype,
-		Payload:     assetBytes,
+		Payload:     msgB,
 		ClientMsgId: &nmess,
 	}
 
-	ttooo, _ := proto.Marshal(nessage)
-	verr := conn.WriteMessage(2, ttooo)
-	//_, verr := writer.Write(ttooo)
-	if verr != nil {
-		fmt.Println("assetrequesterr:", verr)
+	msgB, err = proto.Marshal(msgP)
+	if err != nil {
+		return err
 	}
-
+	err = conn.WriteMessage(2, msgB)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // Request for all the Symbol's available in a given Trading account
-func SendSymbolListRequest(conn *websocket.Conn) {
+func SendSymbolListRequest(conn *websocket.Conn) error {
 	var payloadtype = uint32(messages.ProtoOAPayloadType_PROTO_OA_SYMBOLS_LIST_REQ)
 	id := int64(25675710)
 	nmess := "symbols_req"
-	allSymbolsReq := &messages.ProtoOASymbolsListReq{
+
+	msgReq := &messages.ProtoOASymbolsListReq{
 		CtidTraderAccountId: &id,
 	}
-	symbolBytes, peer := proto.Marshal(allSymbolsReq)
-	if peer != nil {
-		fmt.Println(peer)
+
+	msgB, err := proto.Marshal(msgReq)
+	if err != nil {
+		return err
 	}
-	nessage := &messages.ProtoMessage{
+
+	msgP := &messages.ProtoMessage{
 		PayloadType: &payloadtype,
-		Payload:     symbolBytes,
+		Payload:     msgB,
 		ClientMsgId: &nmess,
 	}
-	ttooo, _ := proto.Marshal(nessage)
-	verr := conn.WriteMessage(2, ttooo)
-	//_, verr := writer.Write(ttooo)
-	if verr != nil {
-		fmt.Println("symbolreqerr:", verr)
+
+	msgB, err = proto.Marshal(msgP)
+	if err != nil {
+		return err
 	}
+
+	err = conn.WriteMessage(2, msgB)
+	if err != nil {
+		return fmt.Errorf("Failed to Send symbol list request %v", err)
+	}
+	return nil
 }
