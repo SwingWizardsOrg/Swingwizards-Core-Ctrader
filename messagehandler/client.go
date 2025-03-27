@@ -84,11 +84,11 @@ func writePump(c *middlewares.Client) {
 
 }
 
-func ConnectToOpen(host string, port int32, hub *middlewares.Hub, w http.ResponseWriter, r *http.Request) {
+func ConnectToOpenApi(host string, port int32, hub *middlewares.Hub, w http.ResponseWriter, r *http.Request) error {
 
 	Appconn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		return
+		return err
 	}
 
 	// Set up a dialer with the desired options
@@ -100,6 +100,7 @@ func ConnectToOpen(host string, port int32, hub *middlewares.Hub, w http.Respons
 	conn, _, err := dialer.Dial(url, nil)
 	if err != nil {
 		log.Fatal(err)
+		return err
 	}
 	client := &middlewares.Client{Hub: hub, Conn: conn, Protomessages: make(chan messages.ProtoMessage), Appconn: Appconn}
 
@@ -112,5 +113,7 @@ func ConnectToOpen(host string, port int32, hub *middlewares.Hub, w http.Respons
 	go writePump(client)
 	service.CollectAllMessages(hub, conn, Appconn)
 	go service.ListenSpots(hub, client)
+
+	return err
 
 }
