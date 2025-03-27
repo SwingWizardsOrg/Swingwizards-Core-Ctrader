@@ -3,7 +3,6 @@ package middlewares
 import (
 	"ctraderapi/messages/github.com/Carlosokumu/messages"
 	"ctraderapi/models"
-	"fmt"
 )
 
 type Hub struct {
@@ -119,13 +118,9 @@ func ChannelMessage(protomessage messages.ProtoMessage, h *Hub) {
 		}
 	case uint32(messages.ProtoOAPayloadType_PROTO_OA_SPOT_EVENT):
 		{
-
-			fmt.Println("Spot...")
-			//h.SpotEventChannel <- protomessage
 			go func() {
 				for {
 					h.SpotEventChannel <- protomessage
-					//fmt.Println("Passed spot", <-h.SpotEventChannel)
 				}
 			}()
 
