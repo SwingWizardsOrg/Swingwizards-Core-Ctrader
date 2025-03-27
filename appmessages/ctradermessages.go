@@ -10,11 +10,24 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+const (
+	MESSAGE_TYPE = 1
+)
+
+var (
+	REQUEST_POSITIONS       = "REQ_POSITIONS"
+	REQUEST_SYMBOLS         = "REQ_SYMBOLS"
+	REQUEST_SUBSCRIBE_SPOTS = "REQ_SUBSCRIBE_SPOTS"
+	REQ_SUBSCRIBE           = "REQ_SUBSCRIBE"
+	REQ_SYMBOL_CONVERSION   = "REQ_SYMBOL_CONVERSION"
+	REQ_ASSET_LIST          = "REQ_ASSET_LIST"
+	REQ_SYMBOL_LIST         = "REQ_SYMBOL_LIST"
+)
+
 // Will Send an Account Auth Request to Ctrader.
 func SendPositionsRequest(conn *websocket.Conn) error {
 	var tt = uint32(messages.ProtoOAPayloadType_PROTO_OA_RECONCILE_REQ)
 	id := int64(25675710)
-	nmess := "443"
 
 	msgReq := &messages.ProtoOAReconcileReq{
 		CtidTraderAccountId: &id,
@@ -28,7 +41,7 @@ func SendPositionsRequest(conn *websocket.Conn) error {
 	msgP := &messages.ProtoMessage{
 		PayloadType: &tt,
 		Payload:     msgB,
-		ClientMsgId: &nmess,
+		ClientMsgId: &REQUEST_POSITIONS,
 	}
 
 	msgB, err = proto.Marshal(msgP)
@@ -36,7 +49,7 @@ func SendPositionsRequest(conn *websocket.Conn) error {
 		return err
 	}
 
-	err = conn.WriteMessage(2, msgB)
+	err = conn.WriteMessage(MESSAGE_TYPE, msgB)
 	if err != nil {
 		return fmt.Errorf("Failed to send positions request %v", err.Error())
 	}
@@ -48,7 +61,6 @@ func SendSymbolRequest(conn *websocket.Conn) error {
 	var payloadtype = uint32(messages.ProtoOAPayloadType_PROTO_OA_SYMBOL_BY_ID_REQ)
 	id := int64(25675710)
 	ids := []int64{1, 2}
-	nmess := "Symbol_request"
 
 	msgReq := &messages.ProtoOASymbolByIdReq{
 		CtidTraderAccountId: &id,
@@ -63,7 +75,7 @@ func SendSymbolRequest(conn *websocket.Conn) error {
 	msgP := &messages.ProtoMessage{
 		PayloadType: &payloadtype,
 		Payload:     msgB,
-		ClientMsgId: &nmess,
+		ClientMsgId: &REQUEST_SYMBOLS,
 	}
 
 	msgB, err = proto.Marshal(msgP)
@@ -71,11 +83,11 @@ func SendSymbolRequest(conn *websocket.Conn) error {
 		return err
 	}
 
-	err = conn.WriteMessage(2, msgB)
+	err = conn.WriteMessage(MESSAGE_TYPE, msgB)
 	if err != nil {
 		return fmt.Errorf("Failed to send symbol request %v", err)
 	}
-	
+
 	return nil
 }
 
@@ -83,7 +95,6 @@ func SendSubscribeSpotsRequest(conn *websocket.Conn) error {
 	var payloadtype = uint32(messages.ProtoOAPayloadType_PROTO_OA_SUBSCRIBE_SPOTS_REQ)
 	id := int64(25675710)
 	ids := []int64{1, 2}
-	nmess := "Subscribe_request"
 
 	msgReq := &messages.ProtoOASubscribeSpotsReq{
 		CtidTraderAccountId: &id,
@@ -97,13 +108,13 @@ func SendSubscribeSpotsRequest(conn *websocket.Conn) error {
 	msgP := &messages.ProtoMessage{
 		PayloadType: &payloadtype,
 		Payload:     msgB,
-		ClientMsgId: &nmess,
+		ClientMsgId: &REQUEST_SUBSCRIBE_SPOTS,
 	}
 	msgB, err = proto.Marshal(msgP)
 	if err != nil {
 		return err
 	}
-	err = conn.WriteMessage(2, msgB)
+	err = conn.WriteMessage(MESSAGE_TYPE, msgB)
 	if err != nil {
 		return fmt.Errorf("Failed to subscribe to spots %v", err)
 	}
@@ -112,7 +123,6 @@ func SendSubscribeSpotsRequest(conn *websocket.Conn) error {
 
 func SendProtoOAsymbolConversion(conn *websocket.Conn) error {
 	var payloadtype = uint32(messages.ProtoOAPayloadType_PROTO_OA_SYMBOLS_FOR_CONVERSION_REQ)
-	nmess := "Subscribe_request"
 	id := int64(25675710)
 	firstasset := int64(6)
 	lastasset := int64(4)
@@ -129,13 +139,13 @@ func SendProtoOAsymbolConversion(conn *websocket.Conn) error {
 	msgP := &messages.ProtoMessage{
 		PayloadType: &payloadtype,
 		Payload:     msgB,
-		ClientMsgId: &nmess,
+		ClientMsgId: &REQ_SYMBOL_CONVERSION,
 	}
 	msgB, err = proto.Marshal(msgP)
 	if err != nil {
 		return err
 	}
-	err = conn.WriteMessage(2, msgB)
+	err = conn.WriteMessage(MESSAGE_TYPE, msgB)
 	if err != nil {
 		return fmt.Errorf("Failed to send symbol conversation request for %v ")
 	}
@@ -144,9 +154,7 @@ func SendProtoOAsymbolConversion(conn *websocket.Conn) error {
 
 func SendProtoAssetListReq(conn *websocket.Conn) error {
 	var payloadtype = uint32(messages.ProtoOAPayloadType_PROTO_OA_ASSET_LIST_REQ)
-	fmt.Println(payloadtype)
 	id := int64(25675710)
-	nmess := "asset_req"
 
 	msgReq := &messages.ProtoOAAssetListReq{
 		CtidTraderAccountId: &id,
@@ -160,14 +168,14 @@ func SendProtoAssetListReq(conn *websocket.Conn) error {
 	msgP := &messages.ProtoMessage{
 		PayloadType: &payloadtype,
 		Payload:     msgB,
-		ClientMsgId: &nmess,
+		ClientMsgId: &REQ_ASSET_LIST,
 	}
 
 	msgB, err = proto.Marshal(msgP)
 	if err != nil {
 		return err
 	}
-	err = conn.WriteMessage(2, msgB)
+	err = conn.WriteMessage(MESSAGE_TYPE, msgB)
 	if err != nil {
 		return err
 	}
@@ -178,7 +186,6 @@ func SendProtoAssetListReq(conn *websocket.Conn) error {
 func SendSymbolListRequest(conn *websocket.Conn) error {
 	var payloadtype = uint32(messages.ProtoOAPayloadType_PROTO_OA_SYMBOLS_LIST_REQ)
 	id := int64(25675710)
-	nmess := "symbols_req"
 
 	msgReq := &messages.ProtoOASymbolsListReq{
 		CtidTraderAccountId: &id,
@@ -192,7 +199,7 @@ func SendSymbolListRequest(conn *websocket.Conn) error {
 	msgP := &messages.ProtoMessage{
 		PayloadType: &payloadtype,
 		Payload:     msgB,
-		ClientMsgId: &nmess,
+		ClientMsgId: &REQ_SYMBOL_LIST,
 	}
 
 	msgB, err = proto.Marshal(msgP)
@@ -200,7 +207,7 @@ func SendSymbolListRequest(conn *websocket.Conn) error {
 		return err
 	}
 
-	err = conn.WriteMessage(2, msgB)
+	err = conn.WriteMessage(MESSAGE_TYPE, msgB)
 	if err != nil {
 		return fmt.Errorf("Failed to Send symbol list request %v", err)
 	}
