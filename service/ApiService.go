@@ -51,7 +51,6 @@ func AuthorizeApp(conn *websocket.Conn, h *middlewares.Hub) {
 		appauthres := <-h.AppAuthResChannnel
 		//Means app is  authorized,we can now authorize the Trading account
 		if *appauthres.PayloadType == 2101 {
-			fmt.Println("Setting  App Account auth...")
 			appAuth := AppAuth{}
 			accountAuth := &AccountAuth{}
 			appAuth.SetNext(accountAuth)
