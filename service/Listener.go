@@ -22,10 +22,8 @@ const (
 )
 
 func ReadCtraderMessages(conn *websocket.Conn, handler middlewares.Client) {
-	fmt.Println("Reading Messages from Ctrader....🧔🏽‍♂️")
 	defer func() {
 		//conn.Close()
-		fmt.Println("Closing...")
 	}()
 
 	conn.SetReadDeadline(time.Now().Add(pongWait))
@@ -51,9 +49,6 @@ func ReadCtraderMessages(conn *websocket.Conn, handler middlewares.Client) {
 			Payload:     msg.Payload,
 			ClientMsgId: msg.ClientMsgId,
 		}
-		fmt.Println("Message..")
-		fmt.Println(msg)
-
 	}
 }
 
@@ -68,15 +63,9 @@ func CollectAllMessages(h *middlewares.Hub, conn *websocket.Conn, appConn *webso
 			swingtrader := <-h.TraderResChannnel
 			accountorders := <-h.AccountOrdersChannel
 
-			fmt.Println("Got Here...")
-
 			accountModel := models.AccountModel{}
 
 			accountModel.Symbols = symbolmodels
-
-			fmt.Println("Traderin:", swingtrader)
-			fmt.Println("symbolmodels:", symbolmodels[0])
-			fmt.Println("accountorders:", accountorders)
 
 			Trader := messages.ProtoOATraderRes{}
 			err := proto.Unmarshal(swingtrader.Payload, &Trader)
@@ -129,107 +118,6 @@ func CollectAllMessages(h *middlewares.Hub, conn *websocket.Conn, appConn *webso
 				}
 
 			}
-
-			// go func() {
-			// 	event := <-h.SpotEventChannel
-			// 	spotEvent := &messages.ProtoOASpotEvent{}
-			// 	unmarsherr := proto.Unmarshal(event.Payload, spotEvent)
-			// 	if unmarsherr != nil {
-			// 		log.Fatal(unmarsherr)
-			// 	}
-			// 	var (
-			// 		bid, ask, TickValue float64
-			// 		symbol              models.SymbolModel
-			// 	)
-			// 	for _, symbomodel := range accountModel.Symbols {
-			// 		if symbomodel.Id == *spotEvent.SymbolId {
-			// 			symbol = symbomodel
-			// 			break
-			// 		}
-			// 	}
-			// 	conversionSymbols := <-h.AccounConversionSymbolsChannel
-			// 	symbol.ConversionSymbols = conversionSymbols
-
-			// 	if spotEvent.Bid != nil {
-			// 		bid = helpers.GetPriceRelative(symbol.Data, float64(*spotEvent.Bid))
-			// 		fmt.Println("bid:", symbol.Bid)
-			// 	}
-
-			// 	if spotEvent.Ask != nil {
-			// 		ask = helpers.GetPriceRelative(symbol.Data, float64(*spotEvent.Ask))
-			// 		fmt.Println("ask:", ask)
-			// 	}
-			// 	symbol.Bid = bid
-
-			// 	if symbol.QuoteAsset.AssetId == accountModel.DepositAsset.AssetId {
-			// 		TickValue = helpers.GetTickValue(symbol.Data, symbol.QuoteAsset, *Trader.Trader.DepositAssetId, nil)
-
-			// 	} else if (len(symbol.ConversionSymbols)) > 0 {
-			// 		var updatedSymbols []models.SymbolModel
-			// 		var tickValues []models.Tuple
-			// 		for _, iSymbol := range symbol.ConversionSymbols {
-			// 			iSymbol.Bid = bid
-			// 			updatedSymbols = append(updatedSymbols, iSymbol)
-
-			// 		}
-			// 		allNonZero := true
-			// 		for _, iSymbol := range updatedSymbols {
-			// 			if iSymbol.Bid == 0 {
-			// 				allNonZero = false
-			// 				break
-			// 			}
-			// 			if allNonZero {
-			// 				for _, iSymbol := range updatedSymbols {
-			// 					tickValues = append(tickValues, models.Tuple{BaseAsset: iSymbol.BaseAsset, QuoteAsset: iSymbol.QuoteAsset, Bid: iSymbol.Bid})
-			// 				}
-			// 				TickValue = helpers.GetTickValue(symbol.Data, symbol.QuoteAsset, *Trader.Trader.DepositAssetId, tickValues)
-
-			// 			}
-
-			// 		}
-
-			// 	}
-			// 	var positionsPLStatus []float64
-			// 	sum := 0.0
-
-			// 	for _, position := range accountModel.Positions {
-			// 		if position.Ordermodel.TradeSide == messages.ProtoOATradeSide_BUY {
-
-			// 			if *position.Ordermodel.Symbol.Data.SymbolId == *spotEvent.SymbolId {
-			// 				Symbol := position.Ordermodel.Symbol.Data
-			// 				pipValue := helpers.GetPipValue(*Symbol, TickValue)
-			// 				positionReturn := symbol.Bid - position.Ordermodel.Price
-			// 				pips := helpers.GetPipsFromPrice(Symbol, positionReturn)
-			// 				grossProfit := pips * pipValue * helpers.FromMonetary(float64(position.Ordermodel.Volume))
-			// 				roundedGross := math.Round(grossProfit*100) / 100
-			// 				netProfit := roundedGross + position.DoubleCommissionMonetary + position.SwapMonetary
-			// 				roundedNet := math.Round(netProfit*100) / 100
-			// 				positionsPLStatus = append(positionsPLStatus, roundedNet)
-			// 			}
-			// 		} else {
-
-			// 		}
-			// 	}
-
-			// 	// Iterate over the array and add each element to the sum
-			// 	for _, netProfit := range positionsPLStatus {
-			// 		sum += netProfit
-			// 	}
-			// 	accountModel.Balance = helpers.FromMonetary(float64(accountModel.SwingTrader.Balance))
-			// 	equity := accountModel.Balance + sum
-			// 	accountModel.Equity = equity
-
-			// 	h.AccountModelChannel <- accountModel
-
-			// 	fmt.Println("BALANCE:", helpers.FromMonetary(float64(accountModel.SwingTrader.Balance)))
-			// 	fmt.Println("Sum:", sum)
-			// 	fmt.Println("EQUITY:", equity)
-
-			// 	defer func() {
-			// 		//conn.Close()
-			// 	}()
-
-			// }()
 		}
 	}()
 

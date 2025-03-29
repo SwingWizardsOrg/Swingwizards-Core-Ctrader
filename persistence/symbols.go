@@ -2,7 +2,6 @@ package persistence
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"strconv"
 
@@ -13,12 +12,12 @@ import (
 	badger "github.com/dgraph-io/badger/v3"
 )
 
-func CreateBadgerConnection() *badger.DB {
+func CreateBadgerConnection() (*badger.DB, error) {
 	db, err := badger.Open(badger.DefaultOptions("/tmp/badger"))
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
-	return db
+	return db, nil
 }
 
 func InsertSymbolData(Symbol messages.ProtoOASymbol) error {
@@ -26,7 +25,7 @@ func InsertSymbolData(Symbol messages.ProtoOASymbol) error {
 	if err != nil {
 		log.Fatal(err)
 	}
-	errupdate := db.Update(func(txn *badger.Txn) error {
+	err = db.Update(func(txn *badger.Txn) error {
 		json, _ := json.Marshal(&Symbol)
 		err := txn.Set([]byte(strconv.Itoa(int(*Symbol.SymbolId))), []byte(json))
 		if err != nil {
@@ -34,8 +33,7 @@ func InsertSymbolData(Symbol messages.ProtoOASymbol) error {
 		}
 		return nil
 	})
-	if errupdate != nil {
-		fmt.Println("Insererror:", err)
+	if err != nil {
 		return err
 	}
 	defer db.Close()
@@ -47,7 +45,7 @@ func InsertLightSymbol(symbolId int64, protoLightSymbol messages.ProtoOALightSym
 	if err != nil {
 		log.Fatal(err)
 	}
-	errupdate := db.Update(func(txn *badger.Txn) error {
+	err = db.Update(func(txn *badger.Txn) error {
 		json, _ := json.Marshal(&protoLightSymbol)
 		err := txn.Set([]byte(strconv.Itoa(int(symbolId))), []byte(json))
 		if err != nil {
@@ -55,8 +53,7 @@ func InsertLightSymbol(symbolId int64, protoLightSymbol messages.ProtoOALightSym
 		}
 		return nil
 	})
-	if errupdate != nil {
-		fmt.Println("Insererror:", err)
+	if err != nil {
 		return err
 	}
 	defer db.Close()
@@ -67,28 +64,26 @@ func ReadSymbolData(SymbolId int64) (*messages.ProtoOASymbol, error) {
 	var symbolEntity messages.ProtoOASymbol
 	db, err := badger.Open(badger.DefaultOptions("/swingwizards/symbols"))
 	if err != nil {
-		//log.Fatal(err)
 		return nil, err
 	}
-	readerr := db.View(func(txn *badger.Txn) error {
+	err = db.View(func(txn *badger.Txn) error {
 		item, err := txn.Get([]byte(strconv.Itoa(int(SymbolId))))
 		if err != nil {
 			return err
 		}
 		item.Value(func(val []byte) error {
 
-			valuehere := json.Unmarshal(val, &symbolEntity)
-			if valuehere != nil {
-				fmt.Println("unmarsherr:", valuehere)
+			err = json.Unmarshal(val, &symbolEntity)
+			if err != nil {
+				return err
 			}
-			fmt.Println("itemhere:", *symbolEntity.Digits)
 			return nil
 		})
 
 		return nil
 	})
-	if readerr != nil {
-		return nil, readerr
+	if err != nil {
+		return nil, err
 	}
 	defer db.Close()
 	return &symbolEntity, nil
@@ -98,28 +93,26 @@ func ReadLightSymbolData(SymbolId int64) (*messages.ProtoOALightSymbol, error) {
 	var symbolEntity messages.ProtoOALightSymbol
 	db, err := badger.Open(badger.DefaultOptions("/swingwizards/lightsymbols"))
 	if err != nil {
-		//log.Fatal(err)
 		return nil, err
 	}
-	readerr := db.View(func(txn *badger.Txn) error {
+	err = db.View(func(txn *badger.Txn) error {
 		item, err := txn.Get([]byte(strconv.Itoa(int(SymbolId))))
 		if err != nil {
 			return err
 		}
 		item.Value(func(val []byte) error {
 
-			valuehere := json.Unmarshal(val, &symbolEntity)
-			if valuehere != nil {
-				fmt.Println("unmarsherr:", valuehere)
+			err = json.Unmarshal(val, &symbolEntity)
+			if err != nil {
+				return err
 			}
-			fmt.Println("LightSymbol:", symbolEntity)
 			return nil
 		})
 
 		return nil
 	})
-	if readerr != nil {
-		return nil, readerr
+	if err != nil {
+		return nil, err
 	}
 	defer db.Close()
 	return &symbolEntity, nil
