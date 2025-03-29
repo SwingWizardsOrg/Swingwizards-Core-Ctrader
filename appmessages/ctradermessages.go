@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	MESSAGE_TYPE = 1
+	MESSAGE_TYPE = websocket.BinaryMessage
 )
 
 var (
@@ -24,7 +24,7 @@ var (
 	REQ_SYMBOL_LIST         = "REQ_SYMBOL_LIST"
 )
 
-// Will Send an Account Auth Request to Ctrader.
+// SendPositionsRequest requests to get Trader's current open positions and pending orders data.
 func SendPositionsRequest(conn *websocket.Conn) error {
 	var tt = uint32(messages.ProtoOAPayloadType_PROTO_OA_RECONCILE_REQ)
 	id := int64(25675710)
@@ -51,12 +51,12 @@ func SendPositionsRequest(conn *websocket.Conn) error {
 
 	err = conn.WriteMessage(MESSAGE_TYPE, msgB)
 	if err != nil {
-		return fmt.Errorf("Failed to send positions request %v", err.Error())
+		return fmt.Errorf("Failed to send positions request: %w", err)
 	}
 	return nil
 }
 
-// Request Symbol Information By Id on the Ctrader Platform
+// SendSymbolRequest  is a request to get a full symbol entity.
 func SendSymbolRequest(conn *websocket.Conn) error {
 	var payloadtype = uint32(messages.ProtoOAPayloadType_PROTO_OA_SYMBOL_BY_ID_REQ)
 	id := int64(25675710)
@@ -85,12 +85,16 @@ func SendSymbolRequest(conn *websocket.Conn) error {
 
 	err = conn.WriteMessage(MESSAGE_TYPE, msgB)
 	if err != nil {
-		return fmt.Errorf("Failed to send symbol request %v", err)
+		return fmt.Errorf("Failed to send symbol request %w:", err)
 	}
 
 	return nil
 }
 
+/*
+SendSubscribeSpotsRequest Request for subscribing on spot events of the specified symbol.
+After successful subscription you'll receive technical ProtoOASpotEvent with latest price, after which you'll start receiving updates on prices via consequent ProtoOASpotEvents.
+*/
 func SendSubscribeSpotsRequest(conn *websocket.Conn) error {
 	var payloadtype = uint32(messages.ProtoOAPayloadType_PROTO_OA_SUBSCRIBE_SPOTS_REQ)
 	id := int64(25675710)
@@ -116,11 +120,12 @@ func SendSubscribeSpotsRequest(conn *websocket.Conn) error {
 	}
 	err = conn.WriteMessage(MESSAGE_TYPE, msgB)
 	if err != nil {
-		return fmt.Errorf("Failed to subscribe to spots %v", err)
+		return fmt.Errorf("Failed to subscribe to spots %w", err)
 	}
 	return nil
 }
 
+// SendProtoOAsymbolConversion is a request for getting a conversion chain between two assets that consists of several symbols.
 func SendProtoOAsymbolConversion(conn *websocket.Conn) error {
 	var payloadtype = uint32(messages.ProtoOAPayloadType_PROTO_OA_SYMBOLS_FOR_CONVERSION_REQ)
 	id := int64(25675710)
@@ -147,11 +152,12 @@ func SendProtoOAsymbolConversion(conn *websocket.Conn) error {
 	}
 	err = conn.WriteMessage(MESSAGE_TYPE, msgB)
 	if err != nil {
-		return fmt.Errorf("Failed to send symbol conversation request for %v ")
+		return fmt.Errorf("Failed to send symbol conversation request for %w", err)
 	}
 	return nil
 }
 
+// SendProtoAssetListReq requests for the list of assets available for a trader's account.
 func SendProtoAssetListReq(conn *websocket.Conn) error {
 	var payloadtype = uint32(messages.ProtoOAPayloadType_PROTO_OA_ASSET_LIST_REQ)
 	id := int64(25675710)
@@ -177,12 +183,12 @@ func SendProtoAssetListReq(conn *websocket.Conn) error {
 	}
 	err = conn.WriteMessage(MESSAGE_TYPE, msgB)
 	if err != nil {
-		return err
+		return fmt.Errorf("Failed to request asset list: %w", err)
 	}
 	return nil
 }
 
-// Request for all the Symbol's available in a given Trading account
+// SendSymbolListRequest request for all the symbols available in a given Trading account
 func SendSymbolListRequest(conn *websocket.Conn) error {
 	var payloadtype = uint32(messages.ProtoOAPayloadType_PROTO_OA_SYMBOLS_LIST_REQ)
 	id := int64(25675710)
@@ -209,7 +215,7 @@ func SendSymbolListRequest(conn *websocket.Conn) error {
 
 	err = conn.WriteMessage(MESSAGE_TYPE, msgB)
 	if err != nil {
-		return fmt.Errorf("Failed to Send symbol list request %v", err)
+		return fmt.Errorf("Failed to Send symbol list request %w: ", err)
 	}
 	return nil
 }
