@@ -14,7 +14,7 @@ func main() {
 		panic(err)
 	}
 	router := initServer(cfg)
-	router.Run(":" + "8070")
+	router.Run(":" + cfg.SwingWizardsCore.Port)
 
 }
 
