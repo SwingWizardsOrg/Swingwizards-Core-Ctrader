@@ -18,6 +18,10 @@ type Config struct {
 		Endpoint string `yaml:"endpoint"`
 		Port     int32  `yaml:"port"`
 	} `yaml:"server"`
+
+	SwingWizardsCore struct {
+		Port string `yaml:"port"`
+	} `yaml:"swingwizardscore"`
 }
 
 func LoadConfig() (*Config, error) {
